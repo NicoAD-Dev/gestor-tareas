@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Gestor de Tareas</h1>
+    <form id="task-form">
+        <input type="text" id="titulo" placeholder="Título" required>
+        <textarea id="descripcion" placeholder="Descripción" required></textarea>
+        <button type="submit">Añadir Tarea</button>
+    </form>
+    <ul id="task-list"></ul>
+
+    <script>
+        document.getElementById('task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('titulo').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            const res = await fetch('http://localhost:3000/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, descripcion, estado: 'Pendiente' })
+            });
+
+            if (res.ok) {
+                alert('Tarea añadida');
+                location.reload();
+            }
+        });
+
+        async function loadTasks() {
+            const res = await fetch('http://localhost:3000/tasks');
+            const tasks = await res.json();
+            document.getElementById('task-list').innerHTML = tasks.map(t => `<li>${t.titulo}: ${t.estado}</li>`).join('');
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>

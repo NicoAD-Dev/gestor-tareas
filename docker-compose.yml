@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: gestor_tareas
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  backend:
+    build: ./backend
+    container_name: node_backend
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  frontend:
+    image: nginx:latest
+    container_name: nginx_frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+
+  php:
+    image: php:apache
+    container_name: php_dashboard
+    volumes:
+      - ./php-dashboard:/var/www/html
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
